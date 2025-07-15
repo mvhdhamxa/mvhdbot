@@ -1,33 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Login</title>
-</head>
-<body>
-  <h2>Login</h2>
-  <form id="login-form">
-    <input type="email" id="email" placeholder="Email" required /><br />
-    <input type="password" id="password" placeholder="Password" required /><br />
-    <button type="submit">Login</button>
-  </form>
+<script type="module">
+  import PocketBase from 'https://cdn.jsdelivr.net/npm/pocketbase@0.18.4/+esm';
 
-  <script src="https://unpkg.com/pocketbase/dist/pocketbase.umd.js"></script>
-  <script src="auth.js"></script>
-  <script>
-    document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
+  const pb = new PocketBase('https://2cbd1d29426f.ngrok-free.app');
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
 
-      try {
-        await pb.collection("users").authWithPassword(email, password);
-        alert("Login successful!");
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        alert("Login failed: " + (error?.response?.message || error.message));
-      }
-    });
-  </script>
-</body>
-</html>
+    try {
+      const authData = await pb.collection('users').authWithPassword(email, password);
+
+      // Save auth state in localStorage
+      localStorage.setItem('pb_auth', JSON.stringify(pb.authStore.export()));
+
+      // ✅ Redirect to dashboard or homepage
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      alert("Login failed: " + err.message);
+      console.error(err);
+    }
+  });
+</script>
