@@ -1,73 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>mvhdBot – Login / Signup</title>
+  <title>Signup - mvhdbot</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+      width: 80%;
+      max-width: 300px;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to mvhdBot</h1>
-  <p>Automatic sniper trading robot using PocketBase</p>
-
-  <button onclick="showLogin()">Login</button>
-  <button onclick="showSignup()">Signup</button>
-
-  <div id="authForm"></div>
+  <h2>Create Your mvhdbot Account</h2>
+  <form id="signupForm">
+    <input type="text" id="username" placeholder="Username" required /><br>
+    <input type="email" id="email" placeholder="Email" required /><br>
+    <input type="password" id="password" placeholder="Password" required /><br>
+    <button type="submit">Sign Up</button>
+  </form>
 
   <script type="module">
-    import PocketBase from 'https://cdn.jsdelivr.net/npm/pocketbase@0.18.3/+esm';
+    import PocketBase from 'https://cdn.jsdelivr.net/npm/pocketbase@0.18.4/+esm';
 
-    // Replace with your local or ngrok URL
-    const pb = new PocketBase('http://127.0.0.1:8090');
+    const pb = new PocketBase("https://2cbd1d29426f.ngrok-free.app");
 
-    function showLogin() {
-      document.getElementById('authForm').innerHTML = `
-        <h3>Login</h3>
-        <input id="email" placeholder="Email"><br>
-        <input id="password" placeholder="Password" type="password"><br>
-        <button onclick="login()">Submit</button>
-      `;
-    }
-
-    function showSignup() {
-      document.getElementById('authForm').innerHTML = `
-        <h3>Signup</h3>
-        <input id="email" placeholder="Email"><br>
-        <input id="password" placeholder="Password" type="password"><br>
-        <button onclick="signup()">Submit</button>
-      `;
-    }
-
-    // Expose functions globally
-    window.login = async function () {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    document.getElementById("signupForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
       try {
-        const result = await pb.collection('users').authWithPassword(email, password);
-        alert('Logged in successfully!');
-        console.log(result);
-      } catch (err) {
-        alert('Login failed');
-        console.error(err);
-      }
-    };
-
-    window.signup = async function () {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      try {
-        const result = await pb.collection('users').create({
+        await pb.collection('users').create({
+          username,
           email,
+          emailVisibility: true,
           password,
           passwordConfirm: password
         });
-        alert('Signup successful!');
-        console.log(result);
+        alert("Signup successful! You can now log in.");
+        window.location.href = "login.html";
       } catch (err) {
-        alert('Signup failed');
-        console.error(err);
+        alert("Signup failed: " + err.message);
       }
-    };
+    });
   </script>
 </body>
 </html>
