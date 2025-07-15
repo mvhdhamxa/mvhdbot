@@ -1,56 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up | mvhdBot</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>mvhdBot – Login / Signup</title>
 </head>
 <body>
-  <div class="container">
-    <h2>Create Your mvhdBot Account</h2>
+  <h1>Welcome to mvhdBot</h1>
+  <p>Automatic sniper trading robot using PocketBase</p>
 
-    <form id="signupForm">
-      <input type="email"     id="suEmail"    placeholder="Email"    required />
-      <input type="password"  id="suPassword" placeholder="Password" required />
-      <button type="submit" class="btn">Sign Up</button>
-    </form>
+  <button onclick="showLogin()">Login</button>
+  <button onclick="showSignup()">Signup</button>
 
-    <p id="suMessage" class="msg"></p>
+  <div id="authForm"></div>
 
-    <p class="text-sm">Already registered?
-       <a href="login.html" class="link">Login here</a>
-    </p>
-  </div>
+  <script type="module">
+    import PocketBase from 'https://cdn.jsdelivr.net/npm/pocketbase@0.18.3/+esm';
 
-  <!-- PocketBase SDK -->
-  <script src="https://unpkg.com/pocketbase@0.22.8/dist/pocketbase.umd.js"></script>
-  <!-- Shared auth helpers -->
-  <script src="js/auth.js"></script>
+    // Replace with your local or ngrok URL
+    const pb = new PocketBase('http://127.0.0.1:8090');
 
-  <script>
-    const form    = document.getElementById('signupForm');
-    const msgBox  = document.getElementById('suMessage');
+    function showLogin() {
+      document.getElementById('authForm').innerHTML = `
+        <h3>Login</h3>
+        <input id="email" placeholder="Email"><br>
+        <input id="password" placeholder="Password" type="password"><br>
+        <button onclick="login()">Submit</button>
+      `;
+    }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email    = document.getElementById('suEmail').value.trim();
-      const password = document.getElementById('suPassword').value.trim();
+    function showSignup() {
+      document.getElementById('authForm').innerHTML = `
+        <h3>Signup</h3>
+        <input id="email" placeholder="Email"><br>
+        <input id="password" placeholder="Password" type="password"><br>
+        <button onclick="signup()">Submit</button>
+      `;
+    }
+
+    // Expose functions globally
+    window.login = async function () {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
 
       try {
-        await pb.collection('users').create({
+        const result = await pb.collection('users').authWithPassword(email, password);
+        alert('Logged in successfully!');
+        console.log(result);
+      } catch (err) {
+        alert('Login failed');
+        console.error(err);
+      }
+    };
+
+    window.signup = async function () {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const result = await pb.collection('users').create({
           email,
           password,
           passwordConfirm: password
         });
-        msgBox.textContent = '✅ Account created! Check your inbox for a verification email.';
-        msgBox.style.color = 'lightgreen';
-        form.reset();
+        alert('Signup successful!');
+        console.log(result);
       } catch (err) {
-        msgBox.textContent = '❌ ' + err.message;
-        msgBox.style.color = 'salmon';
+        alert('Signup failed');
+        console.error(err);
       }
-    });
+    };
   </script>
 </body>
 </html>
